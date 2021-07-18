@@ -50,6 +50,12 @@ namespace ToyDB {
                case ';':
                     tok = new Token(TokenHelper.TokenType.SEMICOLON, this.ch.ToString());
                     break;
+                case '(':
+                    tok = new Token(TokenHelper.TokenType.LPAREN, this.ch.ToString());
+                    break;
+                case ')':
+                    tok = new Token(TokenHelper.TokenType.RPAREN, this.ch.ToString());
+                    break;
                 case ',':
                     tok = new Token(TokenHelper.TokenType.COMMA, this.ch.ToString());
                     break;
@@ -64,6 +70,13 @@ namespace ToyDB {
                         tok = new Token(type, literal);
                         //we don't want to call readchar() again(below) as we have already read the next char in readIdentifier. Therefore return here.
                         return tok;
+                    } else if (this.isDigit(this.ch)) {
+                        string literal = this.readNumber();
+                        TokenHelper.TokenType type = TokenHelper.TokenType.INT;
+
+                        tok = new Token(type, literal);
+                        //we don't want to call readchar() again(below) as we have already read the next char in readNumber. Therefore return here.
+                        return tok;
                     } else {
                         tok = new Token(TokenHelper.TokenType.ILLEGAL, this.ch.ToString());
                     }
@@ -74,6 +87,17 @@ namespace ToyDB {
             return tok;
         }
 
+        private string readNumber() {
+            var temp_position = this.position;
+            while (isDigit(this.ch)) {
+                this.readChar();
+            }
+            return this.input.Substring(temp_position, (this.position - temp_position) /*+ 1*/);
+        }
+
+        private bool isDigit(char ch) {
+            return '0' <= ch && ch <= '9';
+        }
         private string readIdentifier() {
             var temp_position = this.position;
             while (isLetter(this.ch)) {

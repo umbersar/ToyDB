@@ -20,12 +20,18 @@ namespace ToyDB {
             COMMA,
             SEMICOLON,
 
+            LPAREN,//(
+            RPAREN,//)
+
             SELECT,
             FROM,
             CREATE,
             DATABASE,
             TABLE,
-            INT
+            INT,
+            INSERT,
+            INTO,
+            VALUES
         }
 
 
@@ -37,6 +43,9 @@ namespace ToyDB {
                                                         {"database", TokenType.DATABASE},
                                                         {"table", TokenType.TABLE},
                                                         {"int", TokenType.INT},
+                                                        {"insert", TokenType.INSERT},
+                                                        {"into", TokenType.INTO},
+                                                        {"values", TokenType.VALUES }
                                                 };
 
         public static TokenType LookupIdent(string ident) {
