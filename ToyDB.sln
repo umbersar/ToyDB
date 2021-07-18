@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31424.327
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToyDB", "ToyDB.csproj", "{4323D71D-57CB-4C4F-AF31-4AC3A3A3CABE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToyDB", ".\ToyDB\ToyDB.csproj", "{4323D71D-57CB-4C4F-AF31-4AC3A3A3CABE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToyDBTests", "..\ToyDBTests\ToyDBTests.csproj", "{C218A3C4-2188-45D9-AEE9-418DBBCC6A5E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToyDBTests", ".\ToyDBTests\ToyDBTests.csproj", "{C218A3C4-2188-45D9-AEE9-418DBBCC6A5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
