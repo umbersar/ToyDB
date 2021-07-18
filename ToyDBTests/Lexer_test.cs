@@ -35,7 +35,7 @@ namespace ToyDBTests {
             string inputString = @"create database testdb;
                                    create table testtbl(cola int, colb int);
                                    insert into testtbl values(1,2);
-                                   select col1, col2 from testtbl;
+                                   select cola, colb from testtbl;
                                 ";
 
 
@@ -65,6 +65,14 @@ namespace ToyDBTests {
                                 new Test_Token{ tokenNumber=8, expectedType = TokenHelper.TokenType.COMMA, expectedLiteral = "," },
                                 new Test_Token{ tokenNumber=8, expectedType = TokenHelper.TokenType.INT, expectedLiteral = "2" },
                                 new Test_Token{ tokenNumber=8, expectedType = TokenHelper.TokenType.RPAREN, expectedLiteral = ")" },
+                                new Test_Token{ tokenNumber=9, expectedType = TokenHelper.TokenType.SEMICOLON, expectedLiteral = ";" },
+
+                                new Test_Token{ tokenNumber=5, expectedType = TokenHelper.TokenType.SELECT, expectedLiteral = "select" },
+                                new Test_Token{ tokenNumber=6, expectedType = TokenHelper.TokenType.IDENT, expectedLiteral = "cola" },
+                                new Test_Token{ tokenNumber=7, expectedType = TokenHelper.TokenType.COMMA, expectedLiteral = "," },
+                                new Test_Token{ tokenNumber=8, expectedType = TokenHelper.TokenType.IDENT, expectedLiteral = "colb" },
+                                new Test_Token{ tokenNumber=8, expectedType = TokenHelper.TokenType.FROM, expectedLiteral = "from" },
+                                new Test_Token{ tokenNumber=8, expectedType = TokenHelper.TokenType.IDENT, expectedLiteral = "testtbl" },
                                 new Test_Token{ tokenNumber=9, expectedType = TokenHelper.TokenType.SEMICOLON, expectedLiteral = ";" },
             };
 
