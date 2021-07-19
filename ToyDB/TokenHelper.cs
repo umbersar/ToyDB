@@ -25,6 +25,7 @@ namespace ToyDB {
 
             SELECT,
             FROM,
+            USE,
             CREATE,
             DATABASE,
             TABLE,
@@ -39,6 +40,7 @@ namespace ToyDB {
         static Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType> {
                                                         {"select", TokenType.SELECT},
                                                         {"from", TokenType.FROM},
+                                                        {"use", TokenType.USE},
                                                         {"create", TokenType.CREATE},
                                                         {"database", TokenType.DATABASE},
                                                         {"table", TokenType.TABLE},

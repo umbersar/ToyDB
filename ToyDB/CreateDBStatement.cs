@@ -7,10 +7,10 @@ using static ToyDB.AST_Helper;
 
 namespace ToyDB {
 
-    public class CreateStatement : Statement {
+    public class CreateDBStatement : Statement {
         public Token Token { get; set; }// the TokenType.CREATE token
-        public Identifier Name { get; set; }
-        public Expression Value { get; set; }
+        public Identifier DBName { get; set; }
+        
 
         public override void statementNode() {
         }
@@ -23,10 +23,9 @@ namespace ToyDB {
             StringBuilder stringBuilder = new StringBuilder();
 
             stringBuilder.Append(this.TokenLiteral() + " ");
-            stringBuilder.Append(this.Name.ToString());
-            stringBuilder.Append(" = ");
-            if (this.Value != null)//this assumes a LetStatement can be without a value. Does not make sense when "=" has been assumed to be present
-                stringBuilder.Append(this.Value.ToString());
+            stringBuilder.Append("database" + " ");//we injected this string into the AST.ToString() representation as AST does not need to reflect the code as is.
+            if (this.DBName != null)//this assumes a LetStatement can be without a value. Does not make sense when "=" has been assumed to be present
+                stringBuilder.Append(this.DBName.ToString());
             stringBuilder.Append(";");
 
             return stringBuilder.ToString();
