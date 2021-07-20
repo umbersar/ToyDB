@@ -16,7 +16,7 @@ namespace ToyDBTests {
             string inputString = @"create database testdb;";
 
             //construct the AST by hand and then serialize it to spit out the string
-            SQLBatch program = new SQLBatch() {
+            SQLBatch sqlBatch = new SQLBatch() {
                 Statements = new List<Statement>() {
                                     new CreateDBStatement(){ Token = new Token(TokenHelper.TokenType.CREATE, "create"),
                                                         //the token database is not stored in AST for the create statement as it is assumed to be there
@@ -25,9 +25,9 @@ namespace ToyDBTests {
                 }
             };
 
-            string AST_ToString = program.ToString();
+            string AST_ToString = sqlBatch.ToString();
             if (AST_ToString != inputString)
-                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", program.ToString()));
+                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", sqlBatch.ToString()));
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace ToyDBTests {
             string inputString = @"use testdb;";
 
             //construct the AST by hand and then serialize it to spit out the string
-            SQLBatch program = new SQLBatch() {
+            SQLBatch sqlBatch = new SQLBatch() {
                 Statements = new List<Statement>() {
                                     new UseStatement(){ Token = new Token(TokenHelper.TokenType.USE, "use"),
                                                         DBName = new Identifier(){ Token= new Token(TokenHelper.TokenType.IDENT, "testdb"), Value="testdb"}
@@ -43,28 +43,61 @@ namespace ToyDBTests {
                 }
             };
 
-            string AST_ToString = program.ToString();
+            string AST_ToString = sqlBatch.ToString();
             if (AST_ToString != inputString)
-                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", program.ToString()));
+                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", sqlBatch.ToString()));
         }
 
         [TestMethod]
         public void Test_CreateTbl_AST_ToString() {
-            Assert.Fail();
-            string inputString = @"create table testtbl(cola int, colb int);";
+            string inputString = @"create table testtbl(cola,colb);";//data types for columns are assumed to be int. 
 
             //construct the AST by hand and then serialize it to spit out the string
-            SQLBatch program = new SQLBatch() {
+            SQLBatch sqlBatch = new SQLBatch() {
                 Statements = new List<Statement>() {
-                                    new UseStatement(){ Token = new Token(TokenHelper.TokenType.USE, "create"),
-                                                        DBName = new Identifier(){ Token= new Token(TokenHelper.TokenType.IDENT, "testdb"), Value="testdb"}
+                                    new CreateTblStatement(){ Token = new Token(TokenHelper.TokenType.CREATE, "create"),
+                                                             TableName = new Identifier(){ Token= new Token(TokenHelper.TokenType.IDENT, "testtbl"), Value="testtbl"},
+                                                             Columns = new List<Identifier>(){
+                                                                                                new Identifier() { Token= new Token(TokenHelper.TokenType.IDENT, "cola")
+                                                                                                                    , Value="cola"
+                                                                                                                 },
+                                                                                                new Identifier() { Token= new Token(TokenHelper.TokenType.IDENT, "colb")
+                                                                                                                    , Value="colb"
+                                                                                                                 }
+                                                                                             }
                                                       }
                 }
             };
 
-            string AST_ToString = program.ToString();
+            string AST_ToString = sqlBatch.ToString();
             if (AST_ToString != inputString)
-                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", program.ToString()));
+                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", sqlBatch.ToString()));
+        }
+
+        [TestMethod]
+        public void Test_InsertIntoTbl_AST_ToString() {
+            string inputString = @"insert into testtbl values(11,3);";//data types for columns are assumed to be int. 
+
+            //construct the AST by hand and then serialize it to spit out the string
+            SQLBatch sqlBatch = new SQLBatch() {
+                Statements = new List<Statement>() {
+                                    new InsertTblStatement(){ Token = new Token(TokenHelper.TokenType.INSERT, "insert"),
+                                                             TableName = new Identifier(){ Token= new Token(TokenHelper.TokenType.IDENT, "testtbl"), Value="testtbl"},
+                                                             DataToInsert = new List<Expression>(){
+                                                                                                new IntegerLiteral() { Token= new Token(TokenHelper.TokenType.INT, "11")
+                                                                                                                    , Value=11
+                                                                                                                 },
+                                                                                                new IntegerLiteral() { Token= new Token(TokenHelper.TokenType.INT, "3")
+                                                                                                                    , Value=3
+                                                                                                                 }
+                                                                                             }
+                                                      }
+                }
+            };
+
+            string AST_ToString = sqlBatch.ToString();
+            if (AST_ToString != inputString)
+                throw new AssertFailedException(string.Format("program.String() wrong. got={0}", sqlBatch.ToString()));
         }
     }
 }
