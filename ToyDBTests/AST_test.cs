@@ -37,7 +37,7 @@ namespace ToyDBTests {
             //construct the AST by hand and then serialize it to spit out the string
             SQLBatch sqlBatch = new SQLBatch() {
                 Statements = new List<Statement>() {
-                                    new UseStatement(){ Token = new Token(TokenHelper.TokenType.USE, "use"),
+                                    new UseDBStatement(){ Token = new Token(TokenHelper.TokenType.USE, "use"),
                                                         DBName = new Identifier(){ Token= new Token(TokenHelper.TokenType.IDENT, "testdb"), Value="testdb"}
                                                       }
                 }

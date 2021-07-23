@@ -57,7 +57,7 @@ namespace ToyDB {
             {
                 return keywords[ident];
             } else
-                return TokenType.IDENT;//else it is a table or column name literal
+                return TokenType.IDENT;//else it is a table or column or database name literal
         }
     }
 }

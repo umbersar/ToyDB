@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using static ToyDB.AST_Helper;
 
 namespace ToyDB {
-    public class UseStatement : Statement {
+    public class UseDBStatement : Statement {
         public Token Token { get; set; }// the TokenType.USE token
         public Identifier DBName { get; set; }
 
