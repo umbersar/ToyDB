@@ -33,7 +33,7 @@ namespace ToyDBTests {
         [TestMethod]
         public void TestNextToken_keywords_funcs() {
             string inputString = @"create database testdb;
-                                   use database testdb;
+                                   use testdb;
                                    create table testtbl(cola int, colb int);
                                    insert into testtbl values(1,2);
                                    select cola, colb from testtbl;
@@ -46,9 +46,9 @@ namespace ToyDBTests {
                                 new Test_Token{ tokenNumber=4, expectedType = TokenHelper.TokenType.SEMICOLON, expectedLiteral = ";" },
 
                                 new Test_Token{tokenNumber=0, expectedType = TokenHelper.TokenType.USE, expectedLiteral = "use" },
-                                new Test_Token{tokenNumber=1, expectedType = TokenHelper.TokenType.DATABASE, expectedLiteral = "database" },
+                                //new Test_Token{tokenNumber=1, expectedType = TokenHelper.TokenType.DATABASE, expectedLiteral = "database" },
                                 new Test_Token{ tokenNumber=2,expectedType = TokenHelper.TokenType.IDENT, expectedLiteral = "testdb" },
-                                new Test_Token{ tokenNumber=4, expectedType = TokenHelper.TokenType.SEMICOLON, expectedLiteral = ";" },
+                                new Test_Token{ tokenNumber=3, expectedType = TokenHelper.TokenType.SEMICOLON, expectedLiteral = ";" },
 
                                 new Test_Token{tokenNumber=0, expectedType = TokenHelper.TokenType.CREATE, expectedLiteral = "create" },
                                 new Test_Token{tokenNumber=1, expectedType = TokenHelper.TokenType.TABLE, expectedLiteral = "table" },

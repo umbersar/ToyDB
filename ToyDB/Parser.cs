@@ -32,7 +32,6 @@ namespace ToyDB {
                                                         //todo: how CALL precedence for LPAREN not needed for correctly parsing the FunctionExpression arguments but is needed for
                                                         //FunctionCallEpxression parameters??
                                                         {TokenHelper.TokenType.LPAREN, precedence.CALL},
-
                                                 };
     }
 
@@ -62,6 +61,142 @@ namespace ToyDB {
             this.nextToken();
             this.nextToken();
         }
+
+        public SQLBatch ParseSQLBatch() {
+            SQLBatch sqlBatch = new SQLBatch();
+
+            while (!this.curTokenIs(TokenHelper.TokenType.EOF)) {
+                var stmt = this.parseStatement();
+                if (stmt != null) {
+                    sqlBatch.Statements.Add(stmt);
+                }
+                this.nextToken();
+            }
+
+            return sqlBatch;
+        }
+
+        private AST_Helper.Statement parseStatement() {
+            switch (this.curToken.Type) {
+                case TokenHelper.TokenType.USE:
+                    return this.parseUseDBStatement();
+                    
+                case TokenHelper.TokenType.CREATE:
+                    if (this.peekTokenIs(TokenHelper.TokenType.DATABASE)) {
+                        return this.parseCreateDBStatement();
+                    } 
+
+                    return this.parseCreateTblStatement();//we assume if it is not a CREATE DATABASE stmt then it must be CREATE TABLE stmt
+                default:
+                    return this.parseExpressionStatement();
+            }
+        }
+
+        private AST_Helper.Statement parseExpressionStatement() {
+            throw new NotImplementedException();
+        }
+
+        private UseDBStatement parseUseDBStatement() {
+            var stmt = new UseDBStatement() { Token = this.curToken };
+
+            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+                return null;
+            }
+
+            stmt.DBName = new Identifier() { Token = this.curToken, Value = this.curToken.Literal };
+
+            if (this.peekTokenIs(TokenHelper.TokenType.SEMICOLON)) {
+                this.nextToken();
+            }
+
+            return stmt;
+        }
+        
+        private CreateDBStatement parseCreateDBStatement() {
+            var stmt = new CreateDBStatement() { Token = this.curToken };
+
+            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+                return null;
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+                return null;
+            }
+
+            stmt.DBName = new Identifier() { Token = this.curToken, Value = this.curToken.Literal };
+
+            #region MyRegion
+            ////TODO: skip expressions until we encounter a semicolon but replace this with correct parsing logic later
+            //while (!this.curTokenIs(TokenHelper.TokenType.SEMICOLON)) {
+            //    this.nextToken();
+            //} 
+            #endregion
+
+            if (this.peekTokenIs(TokenHelper.TokenType.SEMICOLON)) {
+                this.nextToken();
+            }
+
+            return stmt;
+        }
+
+        private CreateTblStatement parseCreateTblStatement() {
+            var stmt = new CreateTblStatement() { Token = this.curToken };
+
+            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+                return null;
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+                return null;
+            }
+
+            stmt.TableName = new Identifier() { Token = this.curToken, Value = this.curToken.Literal };
+
+            if (!this.expectPeek(TokenHelper.TokenType.LPAREN)) {
+                return null;
+            }
+
+            stmt.Columns = this.parseTableColumns();
+
+            if (this.peekTokenIs(TokenHelper.TokenType.SEMICOLON)) {
+                this.nextToken();
+            }
+
+            return stmt;
+        }
+
+        private List<Identifier> parseTableColumns() {
+            List<Identifier> identifiers = new List<Identifier>();
+
+            if (this.peekTokenIs(TokenHelper.TokenType.RPAREN)) {
+                this.nextToken();
+                return identifiers;
+            }
+
+            this.nextToken();
+            Identifier ident = new Identifier { Token = this.curToken, Value = this.curToken.Literal };
+
+            identifiers.Add(ident);
+
+            while (this.peekTokenIs(TokenHelper.TokenType.COMMA)) {
+                this.nextToken();
+                this.nextToken();
+
+                ident = new Identifier { Token = this.curToken, Value = this.curToken.Literal };
+                identifiers.Add(ident);
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.RPAREN)) {
+                return null;
+            }
+
+            return identifiers;
+        }
+
+        private bool curTokenIs(TokenHelper.TokenType t) {
+            return this.curToken.Type == t;
+        }
+
         private void nextToken() {
             this.curToken = this.peekToken;
             this.peekToken = this.l.NextToken();
@@ -130,8 +265,18 @@ namespace ToyDB {
             return leftExpr;
         }
 
+        Parser_Helper.precedence peekPrecedence() {
+            if (Parser_Helper.precedences.ContainsKey(this.peekToken.Type))
+                return Parser_Helper.precedences[this.peekToken.Type];
+            else
+                return Parser_Helper.precedence.LOWEST;
+        }
+
         void registerPrefix(TokenHelper.TokenType t, Parser_Helper.prefixParserFn fn) {
             this.prefixParseFns[t] = fn;
+        }
+        public List<string> Errors() {
+            return this.errors;
         }
     }
 }
