@@ -115,7 +115,7 @@ namespace ToyDB {
         private CreateDBStatement parseCreateDBStatement() {
             var stmt = new CreateDBStatement() { Token = this.curToken };
 
-            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+            if (!this.expectPeek(TokenHelper.TokenType.DATABASE)) {
                 return null;
             }
 
@@ -142,7 +142,7 @@ namespace ToyDB {
         private CreateTblStatement parseCreateTblStatement() {
             var stmt = new CreateTblStatement() { Token = this.curToken };
 
-            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+            if (!this.expectPeek(TokenHelper.TokenType.TABLE)) {
                 return null;
             }
 
