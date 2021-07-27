@@ -87,6 +87,10 @@ namespace ToyDB {
                     } 
 
                     return this.parseCreateTblStatement();//we assume if it is not a CREATE DATABASE stmt then it must be CREATE TABLE stmt
+                
+                case TokenHelper.TokenType.INSERT:
+                    return this.parseInsertTblStatement();
+                
                 default:
                     return this.parseExpressionStatement();
             }
@@ -95,6 +99,69 @@ namespace ToyDB {
         private AST_Helper.Statement parseExpressionStatement() {
             throw new NotImplementedException();
         }
+
+        private InsertTblStatement parseInsertTblStatement() {
+            var stmt = new InsertTblStatement() { Token = this.curToken };
+
+            if (!this.expectPeek(TokenHelper.TokenType.INTO)) {
+                return null;
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.TABLE)) {
+                return null;
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
+                return null;
+            }
+            
+            stmt.TableName = new Identifier() { Token = this.curToken, Value = this.curToken.Literal };
+
+            if (!this.expectPeek(TokenHelper.TokenType.VALUES)) {
+                return null;
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.LPAREN)) {
+                return null;
+            }
+
+            stmt.DataToInsert = this.parseInsertTableValues();
+
+            if (this.peekTokenIs(TokenHelper.TokenType.SEMICOLON)) {
+                this.nextToken();
+            }
+
+            return stmt;
+        }
+
+        private List<Identifier> parseInsertTableValues() {
+            List<Identifier> identifiers = new List<Identifier>();
+
+            if (this.peekTokenIs(TokenHelper.TokenType.RPAREN)) {
+                this.nextToken();
+                return identifiers;
+            }
+
+            this.nextToken();
+            Identifier ident = new Identifier { Token = this.curToken, Value = this.curToken.Literal };
+
+            identifiers.Add(ident);
+
+            while (this.peekTokenIs(TokenHelper.TokenType.COMMA)) {
+                this.nextToken();
+                this.nextToken();
+
+                ident = new Identifier { Token = this.curToken, Value = this.curToken.Literal };
+                identifiers.Add(ident);
+            }
+
+            if (!this.expectPeek(TokenHelper.TokenType.RPAREN)) {
+                return null;
+            }
+
+            return identifiers;
+        }
+
 
         private UseDBStatement parseUseDBStatement() {
             var stmt = new UseDBStatement() { Token = this.curToken };
