@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ToyDB {
     public static class REPL {
-        const string prompt = ">";
+        const string prompt = "ToyDB>";
         const string ToyDB = @"                 
   _____           ____  ____   
  |_   _|__  _   _|  _ \| __ )  
@@ -36,20 +36,20 @@ namespace ToyDB {
                 //    tok = lex.NextToken();
                 //}
                 #endregion
-                //Parser p = new Parser(lex);
+                Parser p = new Parser(lex);
 
-                //Program program = p.ParseProgram();
-                //if (p.Errors().Count != 0) {
-                //    printParserError(tOut, p.Errors());
-                //    continue;
-                //}
+                SQLBatch program = p.ParseSQLBatch();
+                if (p.Errors().Count != 0) {
+                    printParserError(tOut, p.Errors());
+                    continue;
+                }
 
-                ////tOut.WriteLine(program.ToString());
-                ////tOut.WriteLine();
-                //Object_AST evaluated = Evaluator.Eval(program, env);
-                //if (evaluated != null) {
-                //    tOut.WriteLine(evaluated.Inspect());
-                //}
+                //tOut.WriteLine(program.ToString());
+                //tOut.WriteLine();
+                Object_AST evaluated = Evaluator.Eval(program, env);
+                if (evaluated != null) {
+                    tOut.WriteLine(evaluated.Inspect());
+                }
             }
         }
 
