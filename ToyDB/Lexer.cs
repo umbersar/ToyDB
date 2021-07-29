@@ -59,6 +59,12 @@ namespace ToyDB {
                 case ',':
                     tok = new Token(TokenHelper.TokenType.COMMA, this.ch.ToString());
                     break;
+                case '+':
+                    tok = new Token(TokenHelper.TokenType.PLUS, this.ch.ToString());
+                    break;
+                case '-':
+                    tok = new Token(TokenHelper.TokenType.MINUS, this.ch.ToString());
+                    break;
                 case '\0':
                     tok = new Token(TokenHelper.TokenType.EOF, this.ch.ToString());//todo:??
                     break;

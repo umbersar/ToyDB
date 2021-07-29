@@ -197,6 +197,8 @@ namespace ToyDBTests {
 
             var tests = new[]{
                                 new Test_InsertTbl_Statements { input="insert into testtbl values(11,3);", expectedIdentifier = "testtbl", expectedValues = new List<int>(){ 11, 3} },
+                                //it will parse infix expression as well.
+                                //new Test_InsertTbl_Statements { input="insert into testtbl values(11+1,3-1);", expectedIdentifier = "testtbl", expectedValues = new List<int>(){ (11+1), (3-1)} },
                               };
 
             foreach (var test in tests) {
@@ -210,7 +212,7 @@ namespace ToyDBTests {
                     throw new AssertFailedException("ParseProgram() returned nil");
                 }
 
-                if (sqlBatch.Statements.Count != 1) {
+                if (sqlBatch.Statements.Count != 1) { 
                     throw new AssertFailedException(string.Format("program.Statements does not contain 1 statements. got={0}", sqlBatch.Statements.Count));
                 }
 
@@ -220,8 +222,8 @@ namespace ToyDBTests {
         }
 
         private bool testInsertTblStatement(AST_Helper.Statement s, string name, List<int> expectedValues) {
-            if (s.TokenLiteral() != "create") {
-                throw new AssertFailedException(string.Format("s.TokenLiteral not 'create'. got ={0}", s.TokenLiteral()));
+            if (s.TokenLiteral() != "insert") {
+                throw new AssertFailedException(string.Format("s.TokenLiteral not 'insert'. got ={0}", s.TokenLiteral()));
             }
 
             InsertTblStatement insertTblStmnt;
@@ -232,7 +234,7 @@ namespace ToyDBTests {
             }
 
             if (insertTblStmnt.TableName.Value != name) {
-                throw new AssertFailedException(string.Format("createTblStmnt.TableName.Value not '{0}'. got={1}", name, insertTblStmnt.TableName.Value));
+                throw new AssertFailedException(string.Format("insertTblStmnt.TableName.Value not '{0}'. got={1}", name, insertTblStmnt.TableName.Value));
             }
 
             if (insertTblStmnt.TableName.TokenLiteral() != name) {
@@ -240,10 +242,10 @@ namespace ToyDBTests {
                                                                 name, insertTblStmnt.TableName.TokenLiteral()));
             }
 
-            var columns = insertTblStmnt.DataToInsert.Select(i => int.Parse(i.TokenLiteral())).ToList();
-            if (!columns.SequenceEqual(expectedValues)) {
+            var columnValues = insertTblStmnt.DataToInsert.Select(i => int.Parse(i.TokenLiteral())).ToList();
+            if (!columnValues.SequenceEqual(expectedValues)) {
                 throw new AssertFailedException(string.Format("insertTblStmnt.TableName not '{0}'. got={1}",
-                                                                string.Join(",", expectedValues), string.Join(",", columns)));
+                                                                string.Join(",", expectedValues), string.Join(",", columnValues)));
             }
 
 

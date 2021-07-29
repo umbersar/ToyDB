@@ -21,12 +21,14 @@ namespace ToyDB {
         //and these levels are then associated with TokenTypes from TokenType enum in the dictionary below.
         public enum precedence {//todo:should have been named precedenceLevels(from lowest to highest)
             LOWEST,
+            SUM, // + -
             CALL, // myFunction(X)
         }
 
         //todo:should have been named operatorPrecedenceLevels
         public static Dictionary<TokenHelper.TokenType, precedence> precedences = new Dictionary<TokenHelper.TokenType, precedence> {
-
+                                                        {TokenHelper.TokenType.PLUS, precedence.SUM},//tells us that + and - are at same precedence level
+                                                        {TokenHelper.TokenType.MINUS, precedence.SUM},
                                                         //2nd highest precedence. provides correct 'stickiness' to LPAREN to parse the functions parameters so 
                                                         //that they do not become infix operators when parseExpression is called
                                                         //todo: how CALL precedence for LPAREN not needed for correctly parsing the FunctionExpression arguments but is needed for
@@ -56,7 +58,12 @@ namespace ToyDB {
             //this prefix expression is then joined to them as the leftExpr with rightExpr being the following expressions
             //
             this.prefixParseFns = new Dictionary<TokenHelper.TokenType, Parser_Helper.prefixParserFn>();
+            this.registerPrefix(TokenHelper.TokenType.INT, this.parseIntegerLiteral);//5
             this.registerPrefix(TokenHelper.TokenType.LPAREN, this.parseGroupedExpression);//for expressions which specify explicit precedence rules using parenthesis
+
+            this.infixParseFns = new Dictionary<TokenHelper.TokenType, Parser_Helper.infixParseFn>();
+            this.registerInfix(TokenHelper.TokenType.PLUS, this.parseInfixExpression);
+            this.registerInfix(TokenHelper.TokenType.MINUS, this.parseInfixExpression);
 
             this.nextToken();
             this.nextToken();
@@ -107,10 +114,6 @@ namespace ToyDB {
                 return null;
             }
 
-            if (!this.expectPeek(TokenHelper.TokenType.TABLE)) {
-                return null;
-            }
-
             if (!this.expectPeek(TokenHelper.TokenType.IDENT)) {
                 return null;
             }
@@ -125,7 +128,7 @@ namespace ToyDB {
                 return null;
             }
 
-            stmt.DataToInsert = this.parseInsertTableValues();
+            stmt.DataToInsert = this.parseInsertTableValues(TokenHelper.TokenType.RPAREN);
 
             if (this.peekTokenIs(TokenHelper.TokenType.SEMICOLON)) {
                 this.nextToken();
@@ -134,32 +137,29 @@ namespace ToyDB {
             return stmt;
         }
 
-        private List<Identifier> parseInsertTableValues() {
-            List<Identifier> identifiers = new List<Identifier>();
+        private List<AST_Helper.Expression> parseInsertTableValues(TokenHelper.TokenType endToken) {
+            List<AST_Helper.Expression> args = new List<AST_Helper.Expression>();
 
-            if (this.peekTokenIs(TokenHelper.TokenType.RPAREN)) {
+            if (this.peekTokenIs(endToken)) {
                 this.nextToken();
-                return identifiers;
+                return args;
             }
 
             this.nextToken();
-            Identifier ident = new Identifier { Token = this.curToken, Value = this.curToken.Literal };
-
-            identifiers.Add(ident);
+            args.Add(this.parseExpression(Parser_Helper.precedence.LOWEST));
 
             while (this.peekTokenIs(TokenHelper.TokenType.COMMA)) {
                 this.nextToken();
                 this.nextToken();
 
-                ident = new Identifier { Token = this.curToken, Value = this.curToken.Literal };
-                identifiers.Add(ident);
+                args.Add(this.parseExpression(Parser_Helper.precedence.LOWEST));
             }
 
-            if (!this.expectPeek(TokenHelper.TokenType.RPAREN)) {
+            if (!this.expectPeek(endToken)) {
                 return null;
             }
 
-            return identifiers;
+            return args;
         }
 
 
@@ -300,6 +300,19 @@ namespace ToyDB {
             return expression;
         }
 
+        private AST_Helper.Expression parseInfixExpression(AST_Helper.Expression left) {
+            InfixExpression infixExpression = new InfixExpression { Token = this.curToken, Operator = this.curToken.Literal, Left = left };
+
+            Parser_Helper.precedence precedence = this.curPrecedence();//precedence level of current token
+            this.nextToken();
+
+            //recursice call back to parseExpression. Control arrived here from parseExpression which we are now calling back
+            infixExpression.Right = this.parseExpression(precedence);//it is here we pass precedence using the current context
+
+            return infixExpression;
+        }
+
+
         private void noPrefixParseFnError(TokenHelper.TokenType type) {
             string message = string.Format("no prefix parse function for {0} found", type);
             this.errors.Add(message);
@@ -332,6 +345,21 @@ namespace ToyDB {
             return leftExpr;
         }
 
+        private AST_Helper.Expression parseIntegerLiteral() {
+            var literal = new IntegerLiteral() { Token = this.curToken };
+
+            if (int.TryParse(this.curToken.Literal, out int result)) {
+                literal.Value = result;
+            } else {
+                string message = string.Format("Could not parse {0} as integer", this.curToken.Literal);
+                this.errors.Add(message);
+
+                return null;
+            }
+
+            return literal;
+        }
+
         Parser_Helper.precedence peekPrecedence() {
             if (Parser_Helper.precedences.ContainsKey(this.peekToken.Type))
                 return Parser_Helper.precedences[this.peekToken.Type];
@@ -342,6 +370,19 @@ namespace ToyDB {
         void registerPrefix(TokenHelper.TokenType t, Parser_Helper.prefixParserFn fn) {
             this.prefixParseFns[t] = fn;
         }
+
+        void registerInfix(TokenHelper.TokenType t, Parser_Helper.infixParseFn fn) {
+            this.infixParseFns[t] = fn;
+        }
+
+        Parser_Helper.precedence curPrecedence() {
+            if (Parser_Helper.precedences.ContainsKey(this.curToken.Type))
+                return Parser_Helper.precedences[this.curToken.Type];
+            else
+                return Parser_Helper.precedence.LOWEST;
+        }
+
+
         public List<string> Errors() {
             return this.errors;
         }

@@ -17,6 +17,9 @@ namespace ToyDB {
 
             IDENT,
 
+            PLUS,
+            MINUS,
+
             COMMA,
             SEMICOLON,
 

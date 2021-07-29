@@ -10,6 +10,7 @@ namespace ToyDB {
         public Token Token { get; set; }// the TokenType.INSERT token
         public Identifier TableName { get; set; }
 
+        //TODO: change it to List<List<Expression>> to insert multiples rows at once
         public List<Expression> DataToInsert = new List<Expression>();
 
         public override void statementNode() {
